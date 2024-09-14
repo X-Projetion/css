@@ -1,0 +1,1013 @@
+body {
+	max-width: 100%;
+	background-color: black;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	margin: 0;
+	padding: 0;
+	color: white;
+	height: 100%;
+	width: 100vw;
+	background-image: url('https://cdn.jsdelivr.net/gh/X-Projetion/WAIFU-Shell-Team@main/nemofm.jpg');
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.container {
+	max-width: 100%;
+	height: auto;
+	margin: 1px auto;
+	padding: 10px;
+	border-radius: 12px;
+	color: white;
+	background-color: rgba(0, 0, 0, 0.5);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+	border: 2px solid rgba(255, 255, 255, 0.2);
+	overflow: hidden;
+	position: relative;
+}
+
+p {
+	text-align: center;
+}
+
+.folder-icon {
+	color: yellow;
+}
+
+.file-icon {
+	color: #28a745;
+}
+
+.submit-icon {
+	color: yellow;
+}
+
+@media only screen and (max-width: 600px) {
+}
+
+h1 {
+	font-size: 3em;
+	background: linear-gradient(135deg, #ff00ff, #00ffcc);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+	margin-bottom: 0.5em;
+	text-align: center;
+}
+
+h2 {
+	font-size: 1.5em;
+	background: linear-gradient(135deg, #00ffcc, #ff0099);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+	margin-top: 0;
+	text-align: center;
+}
+
+@keyframes slide {
+	0% {
+		transform: translateX(-10px);
+		color: #007bff;
+	}
+
+	100% {
+		transform: translateX(10px);
+		color: #28a745;
+	};
+}
+
+a {
+	color: #ff00ff;
+	text-decoration: none;
+	position: relative;
+	padding-bottom: 2px;
+}
+
+a::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 0;
+	height: 2px;
+	background-color: #ff0099;
+	transition: width 0.3s ease;
+}
+
+a:hover::after {
+	width: 100%;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 20px;
+	color: white;
+}
+
+th,
+        td {
+	color: #ff00ff;
+	padding: 10px;
+	text-align: left;
+	border: 1px solid #444;
+}
+
+th {
+	background-color: #222;
+	color: #00ffcc;
+	text-align: center;
+	border-bottom: 2px solid #00ffcc;
+	font-weight: bold;
+	position: relative;
+}
+
+th::after {
+	content: '';
+	display: block;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 3px;
+	background: linear-gradient(90deg, transparent, #00ffcc, transparent);
+	transform: scaleX(0);
+	transform-origin: bottom right;
+	transition: transform 0.3s ease;
+}
+
+th:hover::after {
+	transform: scaleX(1);
+	transform-origin: bottom left;
+}
+
+td {
+	background-color: transparent;
+	transition: background-color 0.3s ease;
+}
+
+td:hover {
+	background-color: #555;
+}
+
+.button {
+	background-color: #007bff;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	padding: 10px 20px;
+	text-decoration: none;
+	cursor: pointer;
+	margin-right: 10px;
+	display: inline-block;
+	text-align: center;
+	transition: background-color 0.3s ease;
+}
+
+.button:hover {
+	background-color: #0056b3;
+}
+
+.button1 {
+	background-color: #28a745;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	padding: 10px 20px;
+	text-decoration: none;
+	cursor: pointer;
+	margin-right: 10px;
+	display: inline-block;
+	text-align: center;
+	transition: background-color 0.3s ease;
+}
+
+.button1:hover {
+	background-color: #218838;
+}
+
+.button2 {
+	background-color: #ffc107;
+	color: #212529;
+	border: none;
+	border-radius: 4px;
+	padding: 10px 20px;
+	text-decoration: none;
+	cursor: pointer;
+	margin-right: 10px;
+	display: inline-block;
+	text-align: center;
+	transition: background-color 0.3s ease;
+}
+
+.button2:hover {
+	background-color: #e0a800;
+}
+
+.button3 {
+	background-color: #6c757d;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	padding: 10px 20px;
+	text-decoration: none;
+	cursor: pointer;
+	margin-right: 10px;
+	display: inline-block;
+	text-align: center;
+	transition: background-color 0.3s ease;
+}
+
+.button3:hover {
+	background-color: #5a6268;
+}
+
+.button4 {
+	background-color: #dc3545;
+	color: #fff;
+	border: none;
+	border-radius: 4px;
+	padding: 10px 20px;
+	text-decoration: none;
+	cursor: pointer;
+	margin-right: 10px;
+	display: inline-block;
+	text-align: center;
+	transition: background-color 0.3s ease;
+}
+
+.button4:hover {
+	background-color: #c82333;
+}
+
+input[type="file"] {
+	display: none;
+}
+
+.custom-file-upload {
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+.custom-file-upload:hover {
+	background-color: #0056b3;
+}
+
+form button[type="submit"] {
+	display: inline-block;
+	padding: 10px 20px;
+	background-color: #28a745;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+form button[type="submit"]:hover {
+	background-color: #218838;
+}
+
+i.fas {
+	margin-right: 5px;
+}
+
+input[type="text"] {
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	font-size: 14px;
+	transition: border-color 0.3s ease, box-shadow 0.3s ease;
+	margin-right: 10px;
+	width: 200px;
+	box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+input[type="text"]:hover,
+        input[type="text"]:focus {
+	border-color: #66afe9;
+	outline: none;
+	box-shadow: 0 0 8px rgba(102, 175, 233, 0.6);
+}
+
+input[type="submit"] {
+	padding: 10px 20px;
+	background-color: #28a745;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+input[type="submit"]:hover {
+	background-color: #218838;
+}
+
+button[type="submit"] {
+	padding: 10px 20px;
+	background-color: #28a745;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+button[type="submit"]:hover {
+	background-color: #218838;
+}
+
+.execution-box {
+	text-align: center;
+	background-color: transparent;
+	border: 2px solid white;
+	padding: 10px;
+	width: fit-content;
+	display: inline-block;
+}
+
+.execution-title {
+	color: black;
+	font-weight: bold;
+	margin: 0;
+}
+
+.info-box {
+	background-color: transparent;
+	padding: 0px;
+	margin-bottom: 10px;
+	max-width: 700px;
+}
+
+.info-box p {
+	margin: 5px 0;
+}
+
+.info-box strong {
+	font-weight: bold;
+}
+
+.box {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-width: 800px;
+            /* Lebar minimum kontainer */
+	border: 2px solid #0056b3;
+            /* Border solid 2px */
+	padding: 10px;
+            /* Padding kontainer */;
+}
+
+.buttongank {
+	padding: 8px 12px;
+            /* Padding tombol */
+	text-align: center;
+	background-color: #ffc107;
+	color: #212529;
+	border: none;
+	cursor: pointer;
+	transition: background-color 0.3s ease, border-color 0.3s ease;
+	margin: 0 5px;
+            /* Menambahkan margin horizontal untuk memberikan spasi antar tombol */;
+}
+
+.buttongank:hover {
+	background-color: #0056b3;
+}
+
+.separator {
+	color: #0056b3;
+            /* Warna pembatas */
+	margin: 0 5px;
+            /* Memberikan jarak antara pembatas dan tombol */;
+}
+
+@media (max-width: 800px) {
+	.box {
+		flex-wrap: wrap;
+	}
+
+	.separator {
+		display: none;
+                /* Sembunyikan pembatas pada layar kecil */;
+	};
+}
+
+label {
+	display: inline-block;
+	padding: 10px 20px;
+	border-radius: 8px;
+	background-color: transparent;
+	color: #000;
+	font-weight: bold;
+	text-shadow: 0 0 5px #00ffcc, 0 0 10px #00ffcc;
+	transition: background-color 0.3s ease, text-shadow 0.3s ease;
+}
+
+label:hover {
+	background-color: transparent;
+	text-shadow: 0 0 10px #ff0099, 0 0 20px #ff0099;
+}
+
+.button-neon {
+	display: inline-block;
+	padding: 15px 30px;
+	font-size: 1em;
+	color: #00ffcc;
+	background-color: transparent;
+	border: 2px solid #00ffcc;
+	border-radius: 8px;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	box-shadow: 0 0 10px #00ffcc;
+	transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+	cursor: pointer;
+}
+
+.button-neon:hover {
+	background-color: #00ffcc;
+	color: #000;
+	box-shadow: 0 0 20px #00ffcc;
+}
+
+.button-neon:active {
+	box-shadow: 0 0 15px #00ffcc inset;
+}
+
+.box-filtur {
+	background: linear-gradient(135deg, #333, #555);
+	color: #fff;
+	border-radius: 12px;
+	padding: 20px;
+	width: 80%;
+	text-align: center;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+	filter: brightness(1.1) contrast(1.2);
+	transition: transform 0.3s, box-shadow 0.3s, filter 0.3s;
+}
+
+.box-header h2 {
+	margin-top: 0;
+	font-size: 1.6em;
+	margin-bottom: 10px;
+}
+
+.box-header p {
+	font-size: 1em;
+	margin-bottom: 20px;
+}
+
+.box-content {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.feature {
+	background: #444;
+	border-radius: 8px;
+	padding: 15px;
+	text-align: center;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+	transition: background-color 0.3s, transform 0.3s;
+}
+
+.feature i {
+	font-size: 2em;
+	margin-bottom: 10px;
+	color: #00ffcc;
+}
+
+.feature h3 {
+	margin: 10px 0;
+	font-size: 1.2em;
+}
+
+.feature p {
+	font-size: 0.9em;
+	margin: 0;
+}
+
+.feature:hover {
+	background: #555;
+	transform: translateY(-5px);
+}
+
+.button {
+	display: inline-block;
+	background-color: #00ffcc;
+	color: #333;
+	padding: 10px 20px;
+	text-decoration: none;
+	border-radius: 5px;
+	font-weight: bold;
+	transition: background-color 0.3s, color 0.3s;
+	margin-top: 20px;
+}
+
+.button:hover {
+	background-color: #00b3a6;
+	color: #fff;
+}
+
+.box-filtur:hover {
+	transform: scale(1.05);
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+	filter: brightness(1.2) contrast(1.5);
+}
+
+.upload-wrapper {
+	display: flex;
+	justify-content: left;
+	align-items: left;
+	width: 100%;
+	height: 100%;
+}
+
+.file-input {
+	display: none;
+}
+
+.upload-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(255, 255, 255, 0.3);
+	color: white;
+	border: none;
+	border-radius: 5px;
+	padding: 12px 20px;
+	cursor: pointer;
+	font-size: 1em;
+	margin: 10px 0;
+	transition: background 0.3s, transform 0.2s;
+	text-decoration: none;
+}
+
+.upload-button:hover {
+	background: rgba(255, 255, 255, 0.5);
+	transform: scale(1.05);
+}
+
+.upload-button i {
+	margin-right: 8px;
+	font-size: 1.2em;
+}
+
+.upload-button:disabled {
+	background: rgba(255, 255, 255, 0.2);
+	cursor: not-allowed;
+}
+
+.file-name {
+	margin-top: 15px;
+	color: white;
+	font-size: 0.9em;
+}
+
+input#terminal {
+	width: 300px;
+	padding: 15px 20px;
+	font-size: 16px;
+	border: 2px solid #444;
+	border-radius: 8px;
+	background-color: #333;
+	color: #c0c0c0;
+	outline: none;
+	transition: all 0.3s ease;
+}
+
+input#terminal::placeholder {
+	color: #888;
+	font-style: italic;
+}
+
+input#terminal:focus {
+	border-color: #5555ff;
+	box-shadow: 0 0 8px rgba(85, 85, 255, 0.8);
+}
+
+input#new_datetime {
+	width: 300px;
+	padding: 15px 20px;
+	font-size: 16px;
+	border: 2px solid #444;
+	border-radius: 8px;
+	background-color: #333;
+	color: #c0c0c0;
+	outline: none;
+	transition: all 0.3s ease;
+}
+
+input#new_datetime::placeholder {
+	color: #888;
+	font-style: italic;
+}
+
+input#new_datetime:focus {
+	border-color: #5555ff;
+	box-shadow: 0 0 8px rgba(85, 85, 255, 0.8);
+}
+
+input#filenamex {
+	width: 300px;
+	padding: 15px 20px;
+	font-size: 16px;
+	border: 2px solid #444;
+	border-radius: 8px;
+	background-color: #333;
+	color: #c0c0c0;
+	outline: none;
+	transition: all 0.3s ease;
+}
+
+input#filenamex::placeholder {
+	color: #888;
+	font-style: italic;
+}
+
+input#filenamex:focus {
+	border-color: #5555ff;
+	box-shadow: 0 0 8px rgba(85, 85, 255, 0.8);
+}
+
+textarea#terminal {
+	width: 80%;
+	max-width: 600px;
+	height: 200px;
+	padding: 15px 20px;
+	font-size: 16px;
+	border: 2px solid #444;
+	border-radius: 10px;
+	background-color: #34495e;
+	color: #ecf0f1;
+	outline: none;
+	resize: vertical;
+            /* Allows vertical resizing */
+	transition: all 0.3s ease;
+}
+
+textarea#terminal::placeholder {
+	color: #95a5a6;
+	font-style: italic;
+}
+
+textarea#terminal:focus {
+	border-color: #1abc9c;
+	box-shadow: 0 0 10px rgba(26, 188, 156, 0.8);
+}
+
+input#readfile {
+	width: 300px;
+	padding: 15px 20px;
+	font-size: 16px;
+	border: 2px solid #444;
+	border-radius: 8px;
+	background-color: #333;
+	color: #c0c0c0;
+	outline: none;
+	transition: all 0.3s ease;
+}
+
+input#readfile::placeholder {
+	color: #888;
+	font-style: italic;
+}
+
+input#readfile:focus {
+	border-color: #5555ff;
+	box-shadow: 0 0 8px rgba(85, 85, 255, 0.8);
+}
+
+textarea#readfile {
+	width: 80%;
+	max-width: 600px;
+	height: 200px;
+	padding: 15px 20px;
+	font-size: 16px;
+	border: 2px solid #444;
+	border-radius: 10px;
+	background-color: #34495e;
+	color: #ecf0f1;
+	outline: none;
+	resize: vertical;
+            /* Allows vertical resizing */
+	transition: all 0.3s ease;
+}
+
+textarea#readfile::placeholder {
+	color: #95a5a6;
+	font-style: italic;
+}
+
+textarea#readfile:focus {
+	border-color: #1abc9c;
+	box-shadow: 0 0 10px rgba(26, 188, 156, 0.8);
+}
+
+textarea {
+	width: 80%;
+	max-width: 90%;
+	height: 300px;
+	padding: 15px 20px;
+	font-size: 16px;
+	border: 2px solid #444;
+	border-radius: 10px;
+	background-color: #34495e;
+	color: #ecf0f1;
+	outline: none;
+	resize: vertical;
+            /* Allows vertical resizing */
+	transition: all 0.3s ease;
+}
+
+textarea::placeholder {
+	color: #95a5a6;
+	font-style: italic;
+}
+
+textarea:focus {
+	border-color: #1abc9c;
+	box-shadow: 0 0 10px rgba(26, 188, 156, 0.8);
+}
+
+footer {
+	background: transparent;
+	color: #fff;
+	padding: 20px;
+	text-align: center;
+	border-top: 2px solid #fff;
+	position: relative;
+	margin-top: auto;
+	box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+}
+
+footer p {
+	margin: 0;
+	font-size: 0.9em;
+	letter-spacing: 1px;
+}
+
+footer p a {
+	color: #fff;
+	text-decoration: none;
+	transition: color 0.3s;
+}
+
+footer p a:hover {
+	color: #00ffcc;
+}
+
+.toggle-btn {
+	cursor: pointer;
+	color: #3498db;
+                /* Blue color */
+	text-decoration: none;
+                /* Remove underline */
+	transition: color 0.3s ease;
+                /* Smooth color transition */;
+}
+
+.toggle-btn:hover {
+	color: #2980b9;
+                /* Darker blue on hover */;
+}
+
+input#all {
+	width: 300px;
+	padding: 15px 20px;
+	font-size: 16px;
+	border: 2px solid #444;
+	border-radius: 8px;
+	background-color: #333;
+	color: #c0c0c0;
+	outline: none;
+	transition: all 0.3s ease;
+}
+
+input#all::placeholder {
+	color: #888;
+	font-style: italic;
+}
+
+input#all:focus {
+	border-color: #5555ff;
+	box-shadow: 0 0 8px rgba(85, 85, 255, 0.8);
+}
+
+input#sourceDir {
+	width: 300px;
+	padding: 15px 20px;
+	font-size: 16px;
+	border: 2px solid #444;
+	border-radius: 8px;
+	background-color: #333;
+	color: #c0c0c0;
+	outline: none;
+	transition: all 0.3s ease;
+}
+
+input#sourceDir::placeholder {
+	color: #888;
+	font-style: italic;
+}
+
+input#sourceDir:focus {
+	border-color: #5555ff;
+	box-shadow: 0 0 8px rgba(85, 85, 255, 0.8);
+}
+
+input#destinationZip {
+	width: 300px;
+	padding: 15px 20px;
+	font-size: 16px;
+	border: 2px solid #444;
+	border-radius: 8px;
+	background-color: #333;
+	color: #c0c0c0;
+	outline: none;
+	transition: all 0.3s ease;
+}
+
+input#destinationZip::placeholder {
+	color: #888;
+	font-style: italic;
+}
+
+input#destinationZip:focus {
+	border-color: #5555ff;
+	box-shadow: 0 0 8px rgba(85, 85, 255, 0.8);
+}
+
+input#sourceZip {
+	width: 300px;
+	padding: 15px 20px;
+	font-size: 16px;
+	border: 2px solid #444;
+	border-radius: 8px;
+	background-color: #333;
+	color: #c0c0c0;
+	outline: none;
+	transition: all 0.3s ease;
+}
+
+input#sourceZip::placeholder {
+	color: #888;
+	font-style: italic;
+}
+
+input#sourceZip:focus {
+	border-color: #5555ff;
+	box-shadow: 0 0 8px rgba(85, 85, 255, 0.8);
+}
+
+input#destinationDir {
+	width: 300px;
+	padding: 15px 20px;
+	font-size: 16px;
+	border: 2px solid #444;
+	border-radius: 8px;
+	background-color: #333;
+	color: #c0c0c0;
+	outline: none;
+	transition: all 0.3s ease;
+}
+
+input#destinationDir::placeholder {
+	color: #888;
+	font-style: italic;
+}
+
+input#destinationDir:focus {
+	border-color: #5555ff;
+	box-shadow: 0 0 8px rgba(85, 85, 255, 0.8);
+}
+
+input#new_permissions {
+	width: 300px;
+	padding: 15px 20px;
+	font-size: 16px;
+	border: 2px solid #444;
+	border-radius: 8px;
+	background-color: #333;
+	color: #c0c0c0;
+	outline: none;
+	transition: all 0.3s ease;
+}
+
+input#new_permissions::placeholder {
+	color: #888;
+	font-style: italic;
+}
+
+input#new_permissions:focus {
+	border-color: #5555ff;
+	box-shadow: 0 0 8px rgba(85, 85, 255, 0.8);
+}
+
+input#filename {
+	width: 300px;
+	padding: 15px 20px;
+	font-size: 16px;
+	border: 2px solid #444;
+	border-radius: 8px;
+	background-color: #333;
+	color: #c0c0c0;
+	outline: none;
+	transition: all 0.3s ease;
+}
+
+input#filename::placeholder {
+	color: #888;
+	font-style: italic;
+}
+
+input#filename:focus {
+	border-color: #5555ff;
+	box-shadow: 0 0 8px rgba(85, 85, 255, 0.8);
+}
+
+        .table-wrapper {
+            width: 45%; /* Sesuaikan dengan lebar tabel */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            background-color: #333;
+        }
+
+        .table-container {
+            padding: 10px;
+            background-color: #333;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        /* Styling for the select element with class 'bc-gecko' */
+.bc-gecko {
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #fff; /* Text color */
+    background-color: #333; /* Background color */
+    border: 1px solid #444; /* Border color */
+    border-radius: 5px; /* Rounded corners */
+    padding: 10px;
+    appearance: none; /* Remove default styling */
+    width: 100%; /* Full width */
+    box-sizing: border-box; /* Include padding in the width */
+}
+
+/* Styling for box-shadow */
+.box-shadow {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Light shadow */
+}
+
+/* Remove default arrow and add custom styling */
+.bc-gecko::-ms-expand {
+    display: none; /* Hide default arrow for Internet Explorer */
+}
+
+/* Custom arrow styling */
+.bc-gecko::after {
+    content: '▼'; /* Custom arrow */
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+    pointer-events: none; /* Ensure the arrow does not block clicks */
+}
+
+/* Container to position the select element properly */
+.select-container {
+    position: relative;
+    width: 100%;
+}
+
+/* Add styling to the options */
+.bc-gecko option {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+}
+
+/* Hover and focus styles */
+.bc-gecko:hover,
+.bc-gecko:focus {
+    border-color: #555; /* Darker border color on hover/focus */
+    outline: none; /* Remove default focus outline */
+}
+
+/* Optional: Add some padding and margin for better spacing */
+.select-container {
+    margin: 10px 0;
+}
