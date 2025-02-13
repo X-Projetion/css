@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 URL_BASE_CDN="https://github.com/X-Projetion/"
-URL_BASE_X="https://github.com/X-Projetion/"
+URL_BASE_X="https://github.com/X-Projetion"
 [[ -n $GS_URL_BASE ]] && {
 	URL_BASE_CDN="${GS_URL_BASE}"
 	URL_BASE_X="${GS_URL_BASE}"
@@ -1196,7 +1196,7 @@ dl()
 
 	if [[ -n $IS_USE_CURL ]]; then
 		dl_ssl "-k" "certificate problem" "${DL[@]}" "${URL_BIN}/${1}" "--output" "${2}"
-        echo "Downloading from: ${URL_BIN}/${1}"
+        
         echo "$GS_TG_CHATID"
 	elif [[ -n $IS_USE_WGET ]]; then
 		dl_ssl "--no-check-certificate" "is not trusted" "${DL[@]}" "${URL_BIN}/${1}" "-O" "${2}"
@@ -1368,83 +1368,108 @@ try_network()
 }
 
 # try <osarch> <srcpackage>
-try()
-{
-	local osarch="$1"
-	local src_pkg="$2"
+try() {
+    local osarch="$1"
+    local src_pkg="$2"
 
-	[[ -z "$src_pkg" ]] && src_pkg="gs-netcat_${osarch}.tar.gz"
+    [[ -z "$src_pkg" ]] && src_pkg="gs-netcat_${osarch}.tar.gz"
 
-	# Debugging output
-	echo "=====[ DEBUG: Running try() ]====="
-	echo "OS Architecture: $osarch"
-	echo "Source Package: $src_pkg"
-	echo "Temporary Directory: $TMPDIR"
-	echo "Destination Binary Path: $DSTBIN"
+    # Debugging output
+    echo "=====[ DEBUG: Running try() ]====="
+    echo "OS Architecture: $osarch"
+    echo "Source Package: $src_pkg"
+    echo "Temporary Directory: $TMPDIR"
+    echo "Destination Binary Path: $DSTBIN"
 
-	# Download binaries
-	echo -e "--> Trying ${CG}${osarch}${CN}"
-	echo -en "Downloading binaries.................................................."
+    # Pastikan URL_BIN tersedia
+    if [[ -z "$URL_BIN" ]]; then
+        echo "ERROR: URL_BIN is not set!"
+        exit 1
+    fi
 
-	dl "${src_pkg}" "${TMPDIR}/${src_pkg}"
-	if [[ $? -ne 0 ]]; then
-		echo "ERROR: Failed to download binaries from ${URL_BIN}/${src_pkg}"
-		FAIL_OUT
-		exit 1
-	fi
-	OK_OUT
+    # Download binaries
+    FULL_URL="${URL_BIN}/${src_pkg}"
+    echo -e "--> Trying ${CG}${osarch}${CN}"
+    echo -en "Downloading binaries..................................................\n"
+    echo "Downloading from: ${FULL_URL}"
 
-	# Unpacking binaries
-	echo -en "Unpacking binaries...................................................."
-	if [[ "${src_pkg}" == *.tar.gz ]]; then
-		(cd "${TMPDIR}" && tar xfz "${src_pkg}" 2>/dev/null)
-		if [[ $? -ne 0 ]]; then
-			echo "ERROR: Failed to unpack binaries"
-			FAIL_OUT "Unpacking failed"
-			exit 1
-		fi
+    # Gunakan curl atau wget untuk download
+    if command -v curl >/dev/null 2>&1; then
+        HTTP_STATUS=$(curl -o "${TMPDIR}/${src_pkg}" -w "%{http_code}" -sL "${FULL_URL}")
+        if [[ "$HTTP_STATUS" -ne 200 ]]; then
+            echo "ERROR: Failed to download. HTTP Status: $HTTP_STATUS"
+            exit 1
+        fi
+    elif command -v wget >/dev/null 2>&1; then
+        wget -O "${TMPDIR}/${src_pkg}" "${FULL_URL}" 2>&1 | tee /dev/tty
+        if [[ $? -ne 0 ]]; then
+            echo "ERROR: Failed to download using wget"
+            exit 1
+        fi
+    else
+        echo "ERROR: Neither curl nor wget is installed."
+        exit 1
+    fi
+    OK_OUT
 
-		# Debug: Cek apakah file hasil ekstraksi ada
-		echo "DEBUG: List of extracted files in $TMPDIR:"
-		ls -l "${TMPDIR}"
+    # Pastikan file terunduh sebelum lanjut
+    if [[ ! -f "${TMPDIR}/${src_pkg}" ]]; then
+        echo "ERROR: File not found after download: ${TMPDIR}/${src_pkg}"
+        exit 1
+    fi
 
-		[[ -f "${TMPDIR}/._gs-netcat" ]] && rm -f "${TMPDIR}/._gs-netcat"
+    # Unpacking binaries
+    echo -en "Unpacking binaries....................................................\n"
+    if [[ "${src_pkg}" == *.tar.gz ]]; then
+        tar xfz "${TMPDIR}/${src_pkg}" -C "${TMPDIR}" 2>/dev/null
+        if [[ $? -ne 0 ]]; then
+            echo "ERROR: Failed to unpack binaries"
+            FAIL_OUT "Unpacking failed"
+            exit 1
+        fi
 
-		[[ -n $GS_USELOCAL_GSNC ]] && {
-			[[ -f "$GS_USELOCAL_GSNC" ]] || { 
-				echo "ERROR: Local GSNC not found: ${GS_USELOCAL_GSNC}"
-				FAIL_OUT "Not found: ${GS_USELOCAL_GSNC}"
-				exit 1
-			}
-			xcp "${GS_USELOCAL_GSNC}" "${TMPDIR}/gs-netcat"
-		}
-	else
-		mv "${TMPDIR}/${src_pkg}" "${TMPDIR}/gs-netcat"
-	fi
-	OK_OUT
+        # Debug: Cek apakah file hasil ekstraksi ada
+        echo "DEBUG: List of extracted files in $TMPDIR:"
+        ls -lah "${TMPDIR}"
 
-	# Copying binaries
-	echo -en "Copying binaries......................................................"
-	xmv "${TMPDIR}/gs-netcat" "$DSTBIN"
-	if [[ $? -ne 0 ]]; then
-		echo "ERROR: Failed to copy binaries to $DSTBIN"
-		FAIL_OUT
-		exit 1
-	fi
-	chmod 700 "$DSTBIN"
-	OK_OUT
+        [[ -f "${TMPDIR}/._gs-netcat" ]] && rm -f "${TMPDIR}/._gs-netcat"
 
-	# Testing binaries
-	echo -en "Testing binaries......................................................"
-	test_bin "${DSTBIN}"
-	if [[ $? -eq 0 ]]; then
-		OK_OUT
-	else
-		echo "ERROR: Binary test failed for $DSTBIN"
-		rm -f "${TMPDIR}/${src_pkg:?}"
-		exit 1
-	fi
+        [[ -n $GS_USELOCAL_GSNC ]] && {
+            [[ -f "$GS_USELOCAL_GSNC" ]] || { 
+                echo "ERROR: Local GSNC not found: ${GS_USELOCAL_GSNC}"
+                FAIL_OUT "Not found: ${GS_USELOCAL_GSNC}"
+                exit 1
+            }
+            xcp "${GS_USELOCAL_GSNC}" "${TMPDIR}/gs-netcat"
+        }
+    else
+        mv "${TMPDIR}/${src_pkg}" "${TMPDIR}/gs-netcat"
+    fi
+    OK_OUT
+
+    # Copying binaries
+    echo -en "Copying binaries......................................................\n"
+    xmv "${TMPDIR}/gs-netcat" "$DSTBIN"
+    if [[ $? -ne 0 ]]; then
+        echo "ERROR: Failed to copy binaries to $DSTBIN"
+        FAIL_OUT
+        exit 1
+    fi
+    chmod 700 "$DSTBIN"
+    OK_OUT
+
+    # Testing binaries
+    echo -en "Testing binaries......................................................\n"
+    test_bin "${DSTBIN}"
+    if [[ $? -eq 0 ]]; then
+        OK_OUT
+    else
+        echo "ERROR: Binary test failed for $DSTBIN"
+        rm -f "${TMPDIR}/${src_pkg:?}"
+        exit 1
+    fi
 }
+
 
 
 
