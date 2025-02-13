@@ -6,7 +6,7 @@ URL_BASE_X="https://github.com/X-Projetion/"
 	URL_BASE_CDN="${GS_URL_BASE}"
 	URL_BASE_X="${GS_URL_BASE}"
 }
-URL_BIN="${URL_BASE_CDN}/MOMONO/raw/refs/heads/main/"
+URL_BIN="${URL_BASE_CDN}/MOMONO/raw/refs/heads/main"
 URL_BIN_FULL="${URL_BASE_CDN}/full" 
 [[ -n $GS_URL_BIN ]] && {
 	URL_BIN="${GS_URL_BIN}"
@@ -1375,46 +1375,44 @@ try()
 
 	[[ -z "$src_pkg" ]] && src_pkg="gs-netcat_${osarch}.tar.gz"
 
-	# Simpan log debugging ke file
-	LOGFILE="debug_try.log"
-	exec 2> "$LOGFILE"
-
-	echo "=====[ DEBUG: Running try() ]=====" | tee -a "$LOGFILE"
-	echo "OS Architecture: $osarch" | tee -a "$LOGFILE"
-	echo "Source Package: $src_pkg" | tee -a "$LOGFILE"
-	echo "Temporary Directory: $TMPDIR" | tee -a "$LOGFILE"
-	echo "Destination Binary Path: $DSTBIN" | tee -a "$LOGFILE"
+	# Debugging output
+	echo "=====[ DEBUG: Running try() ]====="
+	echo "OS Architecture: $osarch"
+	echo "Source Package: $src_pkg"
+	echo "Temporary Directory: $TMPDIR"
+	echo "Destination Binary Path: $DSTBIN"
 
 	# Download binaries
 	echo -e "--> Trying ${CG}${osarch}${CN}"
-	echo -en "Downloading binaries.................................................." | tee -a "$LOGFILE"
-	
+	echo -en "Downloading binaries.................................................."
+
 	dl "${src_pkg}" "${TMPDIR}/${src_pkg}"
 	if [[ $? -ne 0 ]]; then
-		echo "ERROR: Failed to download binaries from ${URL_BIN}/${src_pkg}" | tee -a "$LOGFILE"
+		echo "ERROR: Failed to download binaries from ${URL_BIN}/${src_pkg}"
 		FAIL_OUT
 		exit 1
 	fi
 	OK_OUT
 
 	# Unpacking binaries
-	echo -en "Unpacking binaries...................................................." | tee -a "$LOGFILE"
+	echo -en "Unpacking binaries...................................................."
 	if [[ "${src_pkg}" == *.tar.gz ]]; then
 		(cd "${TMPDIR}" && tar xfz "${src_pkg}" 2>/dev/null)
 		if [[ $? -ne 0 ]]; then
-			echo "ERROR: Failed to unpack binaries" | tee -a "$LOGFILE"
+			echo "ERROR: Failed to unpack binaries"
 			FAIL_OUT "Unpacking failed"
 			exit 1
 		fi
 
 		# Debug: Cek apakah file hasil ekstraksi ada
-		ls -l "${TMPDIR}" | tee -a "$LOGFILE"
+		echo "DEBUG: List of extracted files in $TMPDIR:"
+		ls -l "${TMPDIR}"
 
 		[[ -f "${TMPDIR}/._gs-netcat" ]] && rm -f "${TMPDIR}/._gs-netcat"
 
 		[[ -n $GS_USELOCAL_GSNC ]] && {
 			[[ -f "$GS_USELOCAL_GSNC" ]] || { 
-				echo "ERROR: Local GSNC not found: ${GS_USELOCAL_GSNC}" | tee -a "$LOGFILE"
+				echo "ERROR: Local GSNC not found: ${GS_USELOCAL_GSNC}"
 				FAIL_OUT "Not found: ${GS_USELOCAL_GSNC}"
 				exit 1
 			}
@@ -1426,10 +1424,10 @@ try()
 	OK_OUT
 
 	# Copying binaries
-	echo -en "Copying binaries......................................................" | tee -a "$LOGFILE"
+	echo -en "Copying binaries......................................................"
 	xmv "${TMPDIR}/gs-netcat" "$DSTBIN"
 	if [[ $? -ne 0 ]]; then
-		echo "ERROR: Failed to copy binaries to $DSTBIN" | tee -a "$LOGFILE"
+		echo "ERROR: Failed to copy binaries to $DSTBIN"
 		FAIL_OUT
 		exit 1
 	fi
@@ -1437,16 +1435,17 @@ try()
 	OK_OUT
 
 	# Testing binaries
-	echo -en "Testing binaries......................................................" | tee -a "$LOGFILE"
+	echo -en "Testing binaries......................................................"
 	test_bin "${DSTBIN}"
 	if [[ $? -eq 0 ]]; then
 		OK_OUT
 	else
-		echo "ERROR: Binary test failed for $DSTBIN" | tee -a "$LOGFILE"
+		echo "ERROR: Binary test failed for $DSTBIN"
 		rm -f "${TMPDIR}/${src_pkg:?}"
 		exit 1
 	fi
 }
+
 
 
 gs_start_systemd()
