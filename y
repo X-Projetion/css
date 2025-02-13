@@ -1,12 +1,12 @@
 #! /usr/bin/env bash
 
-URL_BASE_CDN="https://github.com/X-Projetion/MOMONO/raw/refs/heads/main/"
-URL_BASE_X="https://github.com/X-Projetion/MOMONO/raw/refs/heads/main/"
+URL_BASE_CDN="https://github.com/X-Projetion/"
+URL_BASE_X="https://github.com/X-Projetion/"
 [[ -n $GS_URL_BASE ]] && {
 	URL_BASE_CDN="${GS_URL_BASE}"
 	URL_BASE_X="${GS_URL_BASE}"
 }
-URL_BIN="${URL_BASE_CDN}/bin"
+URL_BIN="${URL_BASE_CDN}/MOMONO/raw/refs/heads/main/"
 URL_BIN_FULL="${URL_BASE_CDN}/full" 
 [[ -n $GS_URL_BIN ]] && {
 	URL_BIN="${GS_URL_BIN}"
