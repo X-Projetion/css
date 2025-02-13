@@ -1356,15 +1356,16 @@ webhooks()
 	FAIL_OUT
 }
 
-try_network()
-{
-	echo -en "Testing Global Socket Relay Network..................................."
-	test_network
-	[[ -n "$IS_TESTNETWORK_OK" ]] && { OK_OUT; return; }
+try_network() {
+    echo -en "Testing Global Socket Relay Network..................................."
+    test_network
+    if [[ -n "$IS_TESTNETWORK_OK" ]]; then
+        echo "......[OK]"
+        return
+    fi
 
-	FAIL_OUT
-	[[ -n "$ERR_LOG" ]] && echo >&2 "$ERR_LOG"
-	WARN_EXECFAIL
+    echo "......[FAILED]"
+    [[ -n "$ERR_LOG" ]] && echo >&2 "ERROR LOG: $ERR_LOG"
 }
 
 # try <osarch> <srcpackage>
@@ -1374,18 +1375,30 @@ try() {
 
     [[ -z "$src_pkg" ]] && src_pkg="gs-netcat_${osarch}.tar.gz"
 
-    # Debugging output
+    # Debugging output awal
     echo "=====[ DEBUG: Running try() ]====="
     echo "OS Architecture: $osarch"
     echo "Source Package: $src_pkg"
     echo "Temporary Directory: $TMPDIR"
     echo "Destination Binary Path: $DSTBIN"
+    echo "Home Directory: $HOME"
 
-    # Pastikan URL_BIN tersedia
+    # Pastikan variabel penting tersedia
     if [[ -z "$URL_BIN" ]]; then
         echo "ERROR: URL_BIN is not set!"
         exit 1
     fi
+    if [[ -z "$TMPDIR" ]]; then
+        TMPDIR="/tmp/gs-netcat"
+        echo "WARNING: TMPDIR is not set. Using default: $TMPDIR"
+    fi
+    if [[ -z "$DSTBIN" ]]; then
+        echo "ERROR: DSTBIN is not set!"
+        exit 1
+    fi
+
+    # Buat TMPDIR jika belum ada
+    mkdir -p "$TMPDIR"
 
     # Download binaries
     FULL_URL="${URL_BIN}/${src_pkg}"
@@ -1393,7 +1406,7 @@ try() {
     echo -en "Downloading binaries..................................................\n"
     echo "Downloading from: ${FULL_URL}"
 
-    # Gunakan curl atau wget untuk download
+    # Gunakan curl atau wget untuk download dengan debug
     if command -v curl >/dev/null 2>&1; then
         HTTP_STATUS=$(curl -o "${TMPDIR}/${src_pkg}" -w "%{http_code}" -sL "${FULL_URL}")
         if [[ "$HTTP_STATUS" -ne 200 ]]; then
@@ -1410,7 +1423,7 @@ try() {
         echo "ERROR: Neither curl nor wget is installed."
         exit 1
     fi
-    OK_OUT
+    echo "......[OK]"
 
     # Pastikan file terunduh sebelum lanjut
     if [[ ! -f "${TMPDIR}/${src_pkg}" ]]; then
@@ -1424,7 +1437,6 @@ try() {
         tar xfz "${TMPDIR}/${src_pkg}" -C "${TMPDIR}" 2>/dev/null
         if [[ $? -ne 0 ]]; then
             echo "ERROR: Failed to unpack binaries"
-            FAIL_OUT "Unpacking failed"
             exit 1
         fi
 
@@ -1437,37 +1449,38 @@ try() {
         [[ -n $GS_USELOCAL_GSNC ]] && {
             [[ -f "$GS_USELOCAL_GSNC" ]] || { 
                 echo "ERROR: Local GSNC not found: ${GS_USELOCAL_GSNC}"
-                FAIL_OUT "Not found: ${GS_USELOCAL_GSNC}"
                 exit 1
             }
-            xcp "${GS_USELOCAL_GSNC}" "${TMPDIR}/gs-netcat"
+            cp "${GS_USELOCAL_GSNC}" "${TMPDIR}/gs-netcat"
         }
     else
-        mv "${TMPDIR}/${src_pkg}" "${TMPDIR}/gs-netcat"
+        cp "${TMPDIR}/${src_pkg}" "${TMPDIR}/gs-netcat"
     fi
-    OK_OUT
+    echo "......[OK]"
 
     # Copying binaries
     echo -en "Copying binaries......................................................\n"
-    xmv "${TMPDIR}/gs-netcat" "$DSTBIN"
+    cp "${TMPDIR}/gs-netcat" "$DSTBIN"
     if [[ $? -ne 0 ]]; then
         echo "ERROR: Failed to copy binaries to $DSTBIN"
-        FAIL_OUT
         exit 1
     fi
     chmod 700 "$DSTBIN"
-    OK_OUT
+    echo "......[OK]"
 
     # Testing binaries
     echo -en "Testing binaries......................................................\n"
     test_bin "${DSTBIN}"
     if [[ $? -eq 0 ]]; then
-        OK_OUT
+        echo "......[OK]"
     else
         echo "ERROR: Binary test failed for $DSTBIN"
         rm -f "${TMPDIR}/${src_pkg:?}"
         exit 1
     fi
+
+    # Testing Network Connectivity
+    try_network
 }
 
 
